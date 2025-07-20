@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizGen AI - Smart Quiz Generation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* Navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(44, 62, 80, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .navbar-brand {
+            color: #4ecdc4;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .navbar-nav {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .navbar-nav a {
+            color: #ecf0f1;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .navbar-nav a:hover {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            transform: translateY(-2px);
+        }
+
+        .navbar-nav a.active {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+        }
+
+        /* Mobile menu toggle */
+        .mobile-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 6rem 2rem 2rem;
+            min-height: 100vh;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        /* Settings Card */
+        .settings-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .settings-card h2 {
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            color: white;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .form-group select,
+        .form-group input {
+            padding: 0.8rem;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Upload Card */
+        .upload-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .upload-area:hover {
+            border-color: #4ecdc4;
+            background: rgba(78, 205, 196, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .upload-area h3 {
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .upload-area p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-area .formats {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+        }
+
+        .file-info {
+            display: none;
+            background: rgba(78, 205, 196, 0.2);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            color: white;
+            border: 1px solid rgba(78, 205, 196, 0.3);
+        }
+
+        /* Generate Button */
+        .generate-btn {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.4);
+            display: block;
+            margin: 2rem auto;
+            min-width: 200px;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(255, 107, 107, 0.6);
+        }
+
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            margin: 2rem auto;
+            max-width: 300px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .loading-spinner {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading p {
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid rgba(78, 205, 196, 0.3);
+        }
+
+        .modal-title {
+            color: #2c3e50;
+            font-size: 2rem;
+            margin: 0;
+        }
+
+        .close-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ff5252);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .close-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .quiz-meta {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-weight: bold;
+        }
+
+        .quiz-question {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #4ecdc4;
+        }
+
+        .question-text {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+
+        .question-number {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-right: 1rem;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .quiz-option {
+            padding: 0.8rem;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .quiz-option:hover {
+            background: rgba(102, 126, 234, 0.2);
+        }
+
+        .quiz-option.correct {
+            background: linear-gradient(45deg, rgba(78, 205, 196, 0.2), rgba(68, 160, 141, 0.2));
+            border-color: #4ecdc4;
+            font-weight: bold;
+        }
+
+        .quiz-option.correct::before {
+            content: "✅ ";
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .action-btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .download-btn {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            color: white;
+            box-shadow: 0 5px 15px rgba(78, 205, 196, 0.4);
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(78, 205, 196, 0.6);
+        }
+
+        .print-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .print-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .navbar-nav {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: rgba(44, 62, 80, 0.95);
+                flex-direction: column;
+                padding: 1rem;
+                gap: 0.5rem;
+            }
+            
+            .navbar-nav.active {
+                display: flex;
+            }
+            
+            .mobile-toggle {
+                display: block;
+            }
+            
+            .main-content {
+                padding: 5rem 1rem 2rem;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-actions {
+                flex-direction: column;
+            }
+        }
+         .hide{
+            display:None;
+         }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="#" class="navbar-brand">Quiz Generation</a>
+            <button class="mobile-toggle" onclick="toggleMobileMenu()">☰</button>
+            <ul class="navbar-nav" id="navbar-nav">
+                <li><a href="/">🏠 Home</a></li>
+                <li><a href="/quiz" class="active">📝 Quiz</a></li>
+                <li><a href="/prompt">💡 Prompt</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <h1>Generate Your Quiz</h1>
+            <p>Transform your learning materials into interactive quizzes using advanced AI technology</p>
+        </div>
+
+        <!-- Quiz Settings -->
+        <div class="settings-card">
+            <h2>Quiz Configuration</h2>
+            <div class="settings-grid">
+                <div class="form-group">
+                    <label for="difficulty">Difficulty Level</label>
+                    <select id="difficulty">
+                        <option value="Any">Any Difficulty</option>
+                        <option value="Easy">Easy</option>
+                        <option value="Medium" selected>Medium</option>
+                        <option value="Hard">Hard</option>
+                    </select>
+                </div>
+                
+                <div class="form-group hide ">
+                    <label for="questionType">Question Type</label>
+                    <select id="questionType">
+                        <option value="Multiple Choice" selected>Multiple Choice</option>
+                        <option value="True/False">True/False</option>
+                        <option value="Fill in the Blank">Fill in the Blank</option>
+                        <option value="Short Answer">Short Answer</option>
+                    </select>
+                </div>
+                
+                <div class="form-group ">
+                    <label for="questionCount">Number of Questions</label>
+                    <input type="number" id="questionCount" min="1" max="20" value="5">
+                </div>
+                
+                <div class="form-group hide ">
+                    <label for="topic">Specific Topic (optional)</label>
+                    <input type="text" id="topic" placeholder="e.g., Machine Learning, History">
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload Area -->
+        <div class="upload-card">
+            <input type="file" id="fileInput" accept=".pdf,.txt,.docx,.pptx" style="display: none;">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📄</div>
+                <h3>Upload Learning Material</h3>
+                <p>Drop your file here or click to browse</p>
+                <p class="formats">Supports PDF, TXT, DOCX, and PPTX files</p>
+            </div>
+            
+            <div class="file-info" id="fileInfo">
+                <strong>File:</strong> <span id="fileName"></span><br>
+                <strong>Size:</strong> <span id="fileSize"></span>
+            </div>
+        </div>
+
+        <!-- Generate Button -->
+        <button class="generate-btn" id="generateBtn" onclick="generateQuiz()">
+            🚀 Generate Quiz
+        </button>
+
+        <!-- Loading State -->
+        <div class="loading" id="loading">
+            <div class="loading-spinner">🧠</div>
+            <p>Creating your quiz... Please wait</p>
+        </div>
+    </div>
+
+    <!-- Quiz Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Generated Quiz</h2>
+                <button class="close-btn" onclick="closeQuiz()">×</button>
+            </div>
+            
+            <div class="modal-content">
+                <div class="quiz-meta" id="quizMeta"></div>
+                <div id="quizContent"></div>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="action-btn download-btn" onclick="downloadQuiz()">📥 Download Quiz</button>
+                <button class="action-btn print-btn" onclick="printQuiz()">🖨️ Print Quiz</button>
+            </div>
+        </div>
+    </div>
+
+  <script>
+    // Mobile menu toggle
+    function toggleMobileMenu() {
+        const navMenu = document.getElementById('navbar-nav');
+        navMenu.classList.toggle('active');
+    }
+
+    // File handling
+    const fileInput = document.getElementById('fileInput');
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    const generateBtn = document.getElementById('generateBtn');
+    const loading = document.getElementById('loading');
+
+    // Upload area click handler
+    uploadArea.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    // Drag and drop handlers
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = '#4ecdc4';
+        uploadArea.style.background = 'rgba(78, 205, 196, 0.1)';
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+        uploadArea.style.background = 'rgba(255, 255, 255, 0.05)';
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+        uploadArea.style.background = 'rgba(255, 255, 255, 0.05)';
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            updateFileInfo(files[0]);
+        }
+    });
+
+    // File input change handler
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            updateFileInfo(e.target.files[0]);
+        }
+    });
+
+    function updateFileInfo(file) {
+        fileName.textContent = file.name;
+        fileSize.textContent = (file.size / 1024).toFixed(2) + ' KB';
+        fileInfo.style.display = 'block';
+    }
+
+    // Generate quiz function
+    async function generateQuiz() {
+        const difficulty = document.getElementById('difficulty').value;
+        const questionType = document.getElementById('questionType').value;
+        const questionCount = document.getElementById('questionCount').value;
+        const topic = document.getElementById('topic').value;
+        const file = fileInput.files[0];
+
+        // Validate inputs
+        if (!file && !topic) {
+            alert('Please upload a file or enter a topic');
+            return;
+        }
+
+        // Show loading state
+        generateBtn.disabled = true;
+        loading.style.display = 'block';
+
+        try {
+            let response;
+            
+            if (file) {
+                // Upload file first
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const uploadResponse = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!uploadResponse.ok) {
+                    throw new Error('File upload failed');
+                }
+
+                // Generate quiz from document
+                response = await fetch('/generate-quiz', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        difficulty,
+                        questionType,
+                        questionCount,
+                        topic
+                    })
+                });
+            } else {
+                // Generate quiz from topic only
+                response = await fetch('/generate-custom-quiz', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        difficulty,
+                        questionType,
+                        questionCount,
+                        topic
+                    })
+                });
+            }
+
+            if (!response.ok) {
+                throw new Error('Quiz generation failed');
+            }
+
+            const data = await response.json();
+            displayQuiz(data);
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error generating quiz: ' + error.message);
+        } finally {
+            generateBtn.disabled = false;
+            loading.style.display = 'none';
+        }
+    }
+
+    function displayQuiz(data) {
+        const modalOverlay = document.getElementById('modalOverlay');
+        const quizMeta = document.getElementById('quizMeta');
+        const quizContent = document.getElementById('quizContent');
+        
+        // Update meta information
+        quizMeta.innerHTML = `
+            <strong>Difficulty:</strong> ${data.meta.difficulty} | 
+            <strong>Type:</strong> ${data.meta.questionType} | 
+            <strong>Questions:</strong> ${data.meta.questionCount}
+            ${data.meta.topic ? `| <strong>Topic:</strong> ${data.meta.topic}` : ''}
+        `;
+        
+        // Parse and display quiz
+        const questions = parseQuiz(data.quiz);
+        quizContent.innerHTML = formatQuizHTML(questions);
+        
+        // Show modal
+        modalOverlay.style.display = 'flex';
+    }
+
+    function parseQuiz(quizText) {
+        const questions = [];
+        const questionBlocks = quizText.split(/\n\n+/);
+        
+        questionBlocks.forEach((block, index) => {
+            const lines = block.split('\n').filter(line => line.trim());
+            if (lines.length < 2) return;
+            
+            const question = {
+                number: index + 1,
+                text: lines[0].replace(/^\d+\.\s*/, '').replace(/^Q\d+:\s*/, ''),
+                options: [],
+                correctAnswer: null,
+                explanation: null
+            };
+            
+            lines.slice(1).forEach(line => {
+                if (line.includes('Answer:')) {
+                    question.correctAnswer = line.replace('Answer:', '').trim();
+                } else if (line.includes('Explanation:')) {
+                    question.explanation = line.replace('Explanation:', '').trim();
+                } else if (line.match(/^[a-d]\)/i)) {
+                    const isCorrect = line.includes('✓') || line.includes('(correct)');
+                    const cleanOption = line.replace(/^[a-d]\)\s*/i, '').replace('✓', '').replace('(correct)', '').trim();
+                    
+                    question.options.push({
+                        text: cleanOption,
+                        isCorrect: isCorrect
+                    });
+                }
+            });
+            
+            // If no explicit correct answer markers, check the Answer field
+            if (question.correctAnswer && !question.options.some(opt => opt.isCorrect)) {
+                question.options.forEach(opt => {
+                    if (opt.text.startsWith(question.correctAnswer) || 
+                        question.correctAnswer.toLowerCase() === opt.text.toLowerCase()) {
+                        opt.isCorrect = true;
+                    }
+                });
+            }
+            
+            questions.push(question);
+        });
+        
+        return questions;
+    }
+
+    function formatQuizHTML(questions) {
+        return questions.map(question => `
+            <div class="quiz-question">
+                <div class="question-text">
+                    <span class="question-number">${question.number}</span>
+                    ${question.text}
+                </div>
+                <div class="quiz-options">
+                    ${question.options.map(option => `
+                        <div class="quiz-option ${option.isCorrect ? 'correct' : ''}">
+                            ${option.text}
+                        </div>
+                    `).join('')}
+                </div>
+                ${question.explanation ? `
+                <div class="explanation" style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                    <strong>Explanation:</strong> ${question.explanation}
+                </div>
+                ` : ''}
+            </div>
+        `).join('');
+    }
+
+    function closeQuiz() {
+        document.getElementById('modalOverlay').style.display = 'none';
+    }
+
+    function downloadQuiz() {
+        const quizText = document.getElementById('quizContent').innerText;
+        const blob = new Blob([quizText], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'quiz-' + new Date().toISOString().split('T')[0] + '.txt';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    function printQuiz() {
+        const printContent = document.getElementById('quizContent').innerHTML;
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <html>
+                <head>
+                    <title>Quiz - Print Version</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 20px; }
+                        .quiz-question { margin-bottom: 20px; }
+                        .question-text { font-weight: bold; margin-bottom: 10px; }
+                        .quiz-option { margin-left: 20px; margin-bottom: 5px; }
+                        .correct { color: #2f855a; font-weight: bold; }
+                        .correct::before { content: "✅ "; }
+                        .explanation { margin-top: 10px; font-size: 0.9em; color: #666; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Generated Quiz</h1>
+                    ${printContent}
+                </body>
+            </html>
+        `);
+        printWindow.document.close();
+        printWindow.print();
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('modalOverlay').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) {
+            closeQuiz();
+        }
+    });
+</script>
+</body>
+</html>
